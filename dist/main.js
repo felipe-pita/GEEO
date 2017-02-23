@@ -18,6 +18,13 @@ game.stage = new PIXI.Container();
 // Cria o canvas
 document.body.appendChild(game.renderer.view);
 
+// Loader
+PIXI.loader
+  .add("images/ball.png")
+  .load(init);
+
+
+
 // Gera os controladores
 var panel = {};
 
@@ -32,7 +39,42 @@ panel.background = function() {
 	game.stage.addChild(panelBase);
 };
 
+
+// Elementos
+var shapes = {}
+
+// circulo
+shapes.circle = function() {
+	var shape = new PIXI.Graphics();
+
+	var shape = new PIXI.Sprite( 
+		PIXI.loader.resources["images/ball.png"].texture
+	);
+
+	game.stage.addChild(shape);
+};
+
+// circulo
+shapes.square = function() {
+	var shape = new PIXI.Graphics();
+	shape.lineStyle(2, color('#c066e7'));
+	shape.drawRect(10, 80, 64, 64);
+	shape.x = 0;
+	shape.y = 0;
+	shape.rotation = 0.5;
+
+	console.log(shape);
+	game.stage.addChild(shape);
+};
+
+
 // Carrega os objetos dos painel
+function init() {
+	panel.background();
+	shapes.circle();
+	shapes.square();
+}
+
 panel.background();
 
 // Renderiza

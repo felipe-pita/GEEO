@@ -1,21 +1,81 @@
-var app = PIXI.Application(800, 600, {backgroundColor : 0x1099bb});
-document.body.appendChild(app.view);
+// convertor de cores
+function color(hex) { return hex.replace('#', '0x') }
 
-var container = new PIXI.Container();
+// opções
+var game = {
+	width: 300,
+	height: 500,
+	background: color('#323232'),
+	antialias: true,
+};
 
-app.stage.addChild(container);
+// Define o render
+game.renderer = PIXI.autoDetectRenderer(game.width, game.height, { backgroundColor: game.background, antialias: game.antialias });
 
-var texture = PIXI.Texture.fromImage('assets/images/ball.png');
+// Define o stage
+game.stage = new PIXI.Container();
 
-// Create a 5x5 grid of bunnies
-for (var i = 0; i < 25; i++) {
-    var bunny = new PIXI.Sprite(texture);
-    bunny.anchor.set(0.5);
-    bunny.x = (i % 5) * 40;
-    bunny.y = Math.floor(i / 5) * 40;
-    container.addChild(bunny);
+// Cria o canvas
+document.body.appendChild(game.renderer.view);
+
+// Loader
+PIXI.loader
+  .add("images/ball.png")
+  .load(init);
+
+
+
+// Gera os controladores
+var panel = {};
+
+// Fundo
+panel.background = function() {
+	var panelBase = new PIXI.Graphics();
+	panelBase.beginFill(color('#4c4c4c'));
+	panelBase.drawEllipse(0, 0, (game.width / 2) + 20, (game.width / 2) + 20);
+	panelBase.endFill();
+	panelBase.x = game.width / 2;
+	panelBase.y = game.height;
+	game.stage.addChild(panelBase);
+};
+
+
+// Elementos
+var shapes = {}
+
+// circulo
+shapes.circle = function() {
+	var shape = new PIXI.Graphics();
+
+	var shape = new PIXI.Sprite( 
+		PIXI.loader.resources["images/ball.png"].texture
+	);
+
+	game.stage.addChild(shape);
+};
+
+// circulo
+shapes.square = function() {
+	var shape = new PIXI.Graphics();
+	shape.lineStyle(2, color('#c066e7'));
+	shape.drawRect(10, 80, 64, 64);
+	shape.x = 0;
+	shape.y = 0;
+	shape.rotation = 0.5;
+
+	console.log(shape);
+	game.stage.addChild(shape);
+};
+
+
+// Carrega os objetos dos painel
+function init() {
+	panel.background();
+	shapes.circle();
+	shapes.square();
 }
 
-// Center on the screen
-container.x = (app.renderer.width - container.width) / 2;
-container.y = (app.renderer.height - container.height) / 2;
+panel.background();
+
+// Renderiza
+game.renderer.render(game.stage);
