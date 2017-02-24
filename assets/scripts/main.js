@@ -19,63 +19,77 @@ game.stage = new PIXI.Container();
 document.body.appendChild(game.renderer.view);
 
 // Loader
-PIXI.loader
-  .add("images/ball.png")
-  .load(init);
+PIXI.loader.add("images/ball.png").load(setup);
 
+// Setup
+function setup() {
 
-
-// Gera os controladores
-var panel = {};
-
-// Fundo
-panel.background = function() {
-	var panelBase = new PIXI.Graphics();
+	/*
+	 * Controladores
+	 */
+	
+	// Fundo
+	panelBase = new PIXI.Graphics();
 	panelBase.beginFill(color('#4c4c4c'));
 	panelBase.drawEllipse(0, 0, (game.width / 2) + 20, (game.width / 2) + 20);
 	panelBase.endFill();
 	panelBase.x = game.width / 2;
 	panelBase.y = game.height;
 	game.stage.addChild(panelBase);
-};
 
 
-// Elementos
-var shapes = {}
 
-// circulo
-shapes.circle = function() {
-	var shape = new PIXI.Graphics();
+	/*
+	 * Elementos
+	 */
 
-	var shape = new PIXI.Sprite( 
+	// Circulo
+	shapesCircle = new PIXI.Sprite( 
 		PIXI.loader.resources["images/ball.png"].texture
 	);
-
-	game.stage.addChild(shape);
-};
-
-// circulo
-shapes.square = function() {
-	var shape = new PIXI.Graphics();
-	shape.lineStyle(2, color('#c066e7'));
-	shape.drawRect(10, 80, 64, 64);
-	shape.x = 0;
-	shape.y = 0;
-	shape.rotation = 0.5;
-
-	console.log(shape);
-	game.stage.addChild(shape);
-};
+	game.stage.addChild(shapesCircle);
+	
+	// Quadrado
+	shapesSquare = new PIXI.Sprite( 
+		PIXI.loader.resources["images/ball.png"].texture
+	);
+	game.stage.addChild(shapesCircle);
 
 
-// Carrega os objetos dos painel
-function init() {
-	panel.background();
-	shapes.circle();
-	shapes.square();
+
+
+
+	var bullets = [];  
+	var bulletSpeed = 5;
+
+	function shoot(rotation, startPosition){  
+	  var bullet = new PIXI.Sprite( PIXI.loader.resources["images/ball.png"].texture );
+	  bullet.position.x = startPosition.x;
+	  bullet.position.y = startPosition.y;
+	  bullet.rotation = rotation;
+	  stage.addChild(bullet);
+	  bullets.push(bullet);
+	}
+
+	function rotateToPoint(mx, my, px, py){  
+	  var self = this;
+	  var dist_Y = my - py;
+	  var dist_X = mx - py;
+	  var angle = Math.atan2(dist_Y,dist_X);
+	  //var degrees = angle * 180/ Math.PI;
+	  return angle;
+	}
+
 }
 
-panel.background();
+// Loop
+function gameLoop(){
 
-// Renderiza
-game.renderer.render(game.stage);
+	//Loop this function 60 times per second
+	requestAnimationFrame(gameLoop);
+
+	//Render the stage
+	game.renderer.render(game.stage);
+}
+
+gameLoop();

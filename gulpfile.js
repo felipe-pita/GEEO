@@ -1,4 +1,5 @@
 'use strict';
+
 var gulp = require('gulp');
 
 var dist = './dist';
@@ -29,7 +30,19 @@ gulp.task('html', function () {
 	.pipe(gulp.dest(dist));
 });
  
-gulp.task('default', ['sass', 'js', 'images', 'html'], function () {
+gulp.task('webserver', function() {
+	var webserver = require('gulp-webserver');
+	
+	return gulp.src('dist')
+	.pipe(webserver({
+		livereload: true,
+		directoryListing: true,
+		open: true,
+		fallback: 'index.html'
+	}));
+});
+ 
+gulp.task('default', ['sass', 'js', 'images', 'html', 'webserver'], function () {
   gulp.watch(['./assets/styles/**/*.sass'], ['sass']);
   gulp.watch(['./assets/scripts/**/*.js'], ['js']);
   gulp.watch(['./assets/images/**/*'], ['images']);
