@@ -1,95 +1,97 @@
-// convertor de cores
-function color(hex) { return hex.replace('#', '0x') }
+// options
+var gameWidth = 300,
+    gameHeight = 500,
+    gameBackground = '0x323232';
 
-// opções
-var game = {
-	width: 300,
-	height: 500,
-	background: color('#323232'),
-	antialias: true,
-};
+// render
+renderer = PIXI.autoDetectRenderer(gameWidth, gameHeight);
 
-// Define o render
-game.renderer = PIXI.autoDetectRenderer(game.width, game.height, { backgroundColor: game.background, antialias: game.antialias });
+// stage
+stage = new PIXI.Container();
 
-// Define o stage
-game.stage = new PIXI.Container();
+// canvas
+document.body.appendChild(renderer.view);
 
-// Cria o canvas
-document.body.appendChild(game.renderer.view);
-
-// Loader
-PIXI.loader.add("images/ball.png").load(setup);
-
-// Setup
-function setup() {
-
-	/*
-	 * Controladores
-	 */
-	
-	// Fundo
-	panelBase = new PIXI.Graphics();
-	panelBase.beginFill(color('#4c4c4c'));
-	panelBase.drawEllipse(0, 0, (game.width / 2) + 20, (game.width / 2) + 20);
-	panelBase.endFill();
-	panelBase.x = game.width / 2;
-	panelBase.y = game.height;
-	game.stage.addChild(panelBase);
+// Background
+var background = new PIXI.Graphics();  
+    background.beginFill(gameBackground);  
+    background.drawRect(0, 0, gameWidth, gameHeight);  
+    background.endFill();  
+    
+    stage.addChild(background);
 
 
 
-	/*
-	 * Elementos
-	 */
+/*
+ * Textures
+ */
 
-	// Circulo
-	shapesCircle = new PIXI.Sprite( 
-		PIXI.loader.resources["images/ball.png"].texture
-	);
-	game.stage.addChild(shapesCircle);
-	
-	// Quadrado
-	shapesSquare = new PIXI.Sprite( 
-		PIXI.loader.resources["images/ball.png"].texture
-	);
-	game.stage.addChild(shapesCircle);
+var textureGun = PIXI.Texture.fromImage('images/square-stroke.svg'),    
+    textureShapeSquare = PIXI.Texture.fromImage('images/square-fill.svg');
 
 
 
+/*
+ * Shooter
+ */
 
+// create a new Sprite using the texture
+var gun = new PIXI.Sprite(textureGun);
 
-	var bullets = [];  
-	var bulletSpeed = 5;
+// center the sprite's anchor point
+gun.anchor.x = 0.5; 
+gun.anchor.y = 0.5;
 
-	function shoot(rotation, startPosition){  
-	  var bullet = new PIXI.Sprite( PIXI.loader.resources["images/ball.png"].texture );
-	  bullet.position.x = startPosition.x;
-	  bullet.position.y = startPosition.y;
-	  bullet.rotation = rotation;
-	  stage.addChild(bullet);
-	  bullets.push(bullet);
-	}
+// move the sprite to the center of the screen
+gun.position.x = gameWidth / 2;  
+gun.position.y = gameHeight / 2;
 
-	function rotateToPoint(mx, my, px, py){  
-	  var self = this;
-	  var dist_Y = my - py;
-	  var dist_X = mx - py;
-	  var angle = Math.atan2(dist_Y,dist_X);
-	  //var degrees = angle * 180/ Math.PI;
-	  return angle;
-	}
+stage.addChild(gun);
 
+stage.interactive = true;
+
+stage.on("mousedown", function(e){  
+  shoot(gun.rotation, {
+    x: gun.position.x,
+    y: gun.position.y
+  });
+})
+
+var bullets = [];  
+var bulletSpeed = 5;
+
+function shoot(rotation, startPosition){  
+	var bullet = new PIXI.Sprite(textureShapeSquare);
+	bullet.position.x = startPosition.x;
+	bullet.position.y = startPosition.y;
+	bullet.anchor.x = 0.5; 
+	bullet.anchor.y = 0.5;
+	bullet.rotation = rotation;
+	stage.addChild(bullet);
+	bullets.push(bullet);
 }
 
-// Loop
-function gameLoop(){
-
-	//Loop this function 60 times per second
-	requestAnimationFrame(gameLoop);
-
-	//Render the stage
-	game.renderer.render(game.stage);
+function rotateToPoint(mx, my, px, py){  
+  var self = this;
+  var dist_Y = my - py;
+  var dist_X = mx - py;
+  var angle = Math.atan2(dist_Y,dist_X);
+  // var degrees = angle * 180/ Math.PI;
+  return angle;
 }
 
-gameLoop();
+// start animating
+animate();  
+function animate() {  
+  requestAnimationFrame(animate);
+
+  // just for fun, let's rotate mr rabbit a little
+  gun.rotation = rotateToPoint(renderer.plugins.interaction.mouse.global.x, renderer.plugins.interaction.mouse.global.y, gun.position.x, gun.position.y);
+
+  for(var b=bullets.length-1;b>=0;b--){
+    bullets[b].position.x += Math.cos(bullets[b].rotation)*bulletSpeed;
+    bullets[b].position.y += Math.sin(bullets[b].rotation)*bulletSpeed;
+  }
+  // render the container
+  renderer.render(stage);
+}
