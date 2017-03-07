@@ -33,12 +33,11 @@ gulp.task('html', function () {
 gulp.task('webserver', function() {
 	var webserver = require('gulp-webserver');
 	
-	return gulp.src('dist')
+	return gulp.src('./')
 	.pipe(webserver({
-		livereload: true,
+		livereload: false,
 		directoryListing: true,
 		open: true,
-		fallback: 'index.html'
 	}));
 });
  
