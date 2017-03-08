@@ -67,7 +67,8 @@ function shoot(rotation, startPosition){
 	bullet.position.y = startPosition.y;
 	bullet.anchor.x = 0.5; 
 	bullet.anchor.y = 0.5;
-	bullet.rotation = 0;
+	bullet.rotation = rotation;
+	//bullet.rotation = 0;
 	stage.addChild(bullet);
 	bullets.push(bullet);
 }
@@ -107,16 +108,16 @@ function animate() {
 	requestAnimationFrame(animate);
 
 	// just for fun, let's rotate mr rabbit a little
-	// gun.rotation = rotateToPoint(renderer.plugins.interaction.mouse.global.x, renderer.plugins.interaction.mouse.global.y, gun.position.x, gun.position.y);
+	gun.rotation = rotateToPoint(renderer.plugins.interaction.mouse.global.x, renderer.plugins.interaction.mouse.global.y, gun.position.x, gun.position.y);
 
 	
 
 	for(var b=bullets.length-1;b>=0;b--){
-		// bullets[b].position.x += Math.cos(bullets[b].rotation)*bulletSpeed;
-		// bullets[b].position.y += Math.sin(bullets[b].rotation)*bulletSpeed;
-
 		bullets[b].position.x += Math.cos(bullets[b].rotation)*bulletSpeed;
-		bullets[b].position.y += Math.cos(bullets[b].rotation)*bulletSpeed;
+		bullets[b].position.y += Math.sin(bullets[b].rotation)*bulletSpeed;
+
+		//bullets[b].position.x += Math.cos(bullets[b].rotation)*bulletSpeed;
+		//bullets[b].position.y += Math.cos(bullets[b].rotation)*bulletSpeed;
 	}
 	// render the container
 	renderer.render(stage);
