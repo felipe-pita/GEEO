@@ -1,72 +1,60 @@
-// options
-var gameWidth = 320,
-	gameHeight = 568,
-	gameBackground = '0x323232';
+var game = new Phaser.Game(320, 568, Phaser.CANVAS, 'phaser-example', { preload: preload, create: create, update: update, render: render });
 
-var game = new Phaser.Game(gameWidth, gameHeight, Phaser.CANVAS, 'phaser-example', { preload: preload, create: create, update: update, render: render });
+console.log('1');
 
 function preload() {
 	// Sprites
-	game.load.image('ship', 'images/bullet.square.svg');
+	game.load.image('gun', 'images/bullet.square.svg');
 	game.load.image('bullet', 'images/bullet.square.svg');
 
 	// Audio
 	game.load.audio('weapon__shoot', 'sounds/weapon__shoot.wav');
 }
 
-var sprite;
-var weapon;
-var cursors;
-var fireButton;
+var sprite, weapon, cursors, fireButton;
 
 function create() {
+	game.physics.startSystem(Phaser.Physics.ARCADE);
 
-	//  Creates 30 bullets, using the 'bullet' graphic
-	weapon = game.add.weapon(30, 'bullet');
+	game.stage.backgroundColor = '#313131';
 
-	//  The bullet will be automatically killed when it leaves the world bounds
+	weapon = game.add.weapon(10, 'bullet');
 	weapon.bulletKillType = Phaser.Weapon.KILL_WORLD_BOUNDS;
+	weapon.bulletSpeed = 600;
 
-	//  Because our bullet is drawn facing up, we need to offset its rotation:
-	weapon.bulletAngleOffset = 0;
-
-	//  The speed at which the bullet is fired
-	weapon.bulletSpeed = 400;
-
-	weapon.fireRate = 60;
-
-	sprite = this.add.sprite(150, 150, 'ship');
+	sprite = this.add.sprite(game.width / 2, game.height - 80, 'gun');
 	sprite.anchor.set(0.5);
-
-
-	game.physics.arcade.enable(sprite);
-
-	//  Tell the Weapon to track the 'player' Sprite, offset by 14px horizontally, 0 vertically
 	weapon.trackSprite(sprite, 0, 0, true);
-
+	game.physics.arcade.enable(sprite);
 	cursors = this.input.keyboard.createCursorKeys();
 
-	fireButton = this.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
+	/*
+	 * Shoot
+	 */
 
-	fireButton.onDown.add(shootBullet, this);
-
+	hitarea = new Phaser.Rectangle(0, 0, game.width, game.height - 90);
 	shootSound = game.add.audio('weapon__shoot');
 
-	function shootBullet() {
-		weapon.fire();
-		shootSound.play();
+	handlePointerDown = function(pointer){    
+		var inside = hitarea.contains(pointer.x,pointer.y);
+
+		if (inside) {
+			weapon.fire();
+			shootSound.play();
+		}
 	}
-	
+
+	game.input.onDown.add(handlePointerDown);
 }
 
 function update() {
+	sprite.rotation = game.physics.arcade.angleToPointer(sprite);
+
 	if (cursors.left.isDown) {
 		sprite.body.rotation += -2;
 	} else if (cursors.right.isDown) {
 		sprite.body.rotation += 2;
 	}
-
-	game.world.wrap(sprite, 16);
 }
 
 function render() {
