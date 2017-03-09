@@ -2,4 +2,4 @@
 
 Vou terminar essa porra!
 
-[thumb.gif](thumbnail)
+![](thumb.gif)
