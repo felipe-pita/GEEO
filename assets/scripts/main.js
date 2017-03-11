@@ -1,6 +1,9 @@
-var game = new Phaser.Game(320, 568, Phaser.CANVAS, 'phaser-example', { preload: preload, create: create, update: update, render: render });
+/*
+ * GEEO
+ * 
+ */
 
-// console.log('1');
+var game = new Phaser.Game(320, 568, Phaser.CANVAS, 'phaser-example', { preload: preload, create: create, update: update, render: render });
 
 function preload() {
 
@@ -9,7 +12,7 @@ function preload() {
 	 */
 
 	// Gun
-	game.load.image('gun', 'images/bullet.square.svg');
+	game.load.image('panel', 'images/bullet.square.svg');
 	
 	// Bullets
 	game.load.image('bullet', 'images/bullet.square.svg');
@@ -27,51 +30,98 @@ function preload() {
 }
 
 // Elements
-var sprite, weapon, cursors, hitarea, targets;
+var weapon, panel, cursors, hitarea, targets;
 
 // functions
 var shoot, hit;
 
 function create() {
-	// init
+
+	/*
+	 * init
+	 */
+
+	// background
 	game.stage.backgroundColor = '#313131';
+
+	// Sistema de física
 	game.physics.startSystem(Phaser.Physics.ARCADE);
 
-	// bullets
+
+	/*
+	 * Weapon
+	 */
+
+	// Adiciona as balas
 	weapon = game.add.weapon(10, 'bullet');
+
+	// weapon.enableBody = true;
+
+	// morrer ao sair da tela
 	weapon.bulletKillType = Phaser.Weapon.KILL_WORLD_BOUNDS;
+
+	// velocidade
 	weapon.bulletSpeed = 600;
 
-	// gun
-	sprite = this.add.sprite(game.width / 2, game.height - 80, 'gun');
-	sprite.anchor.set(0.5);
-	weapon.trackSprite(sprite, 0, 0, true);
-	game.physics.arcade.enable(sprite);
+	// angulação inicial
+	game.input.x = game.world.wdth / 2;
 
-	// Shoot
+
+	// hitarea
 	hitarea = new Phaser.Rectangle(0, 0, game.width, game.height - 90);
+
+	// atirar
 	game.input.onDown.add(shoot);
+
+	// peww
 	shootSound = game.add.audio('weapon__shoot');
 
-	// Targets
+
+	/*
+	 * Panel
+	 */
+
+	// sprite
+	panel = this.add.sprite(game.width / 2, game.height - 80, 'panel');
+	
+	// ponto de rotação
+	panel.anchor.set(0.5);
+
+	panel.rotationOffset = -90;
+
+	// Arma deve seguir a angulação do painel
+	weapon.trackSprite(panel, 0, 0, true);	
+
+	/*
+	 * Targets
+	 */
+
+	// Grupo
 	targets = game.add.group();
+
 	targets.enableBody = true;
-	var target = targets.create(0, 0, 'target__square');
-	// target.body.gravity.y = 6;
+	var tween = game.add.tween(targets).to( { x: 200 }, 2000, Phaser.Easing.Linear.None, true, 0, 1000, true);
+
+	for (var i = 0; i < 4; i++) {
+		var target = targets.create(i * 50	, 10, 'target__square');	
+	}
 }
 
 function update() {
 	// Rotaciona a arma se estiver dentro da hitarea
 	if ( hitarea.contains(game.input.x, game.input.y) ) {
-		sprite.rotation = game.physics.arcade.angleToPointer(sprite);	
+		panel.rotation = game.physics.arcade.angleToPointer(panel);
 	}
 
-	game.physics.arcade.collide(weapon, targets);
-	game.physics.arcade.overlap(weapon, targets, hit, null, this);
+	game.physics.arcade.overlap(weapon.bullets, targets, hit, null, this);
 }
 
 function render() {
-	weapon.debug();
+	// weapon.debug();
+	//game.debug.bodyInfo(shooter, 32, 32);
+
+    game.debug.body(weapon);
+    game.debug.body(targets);
 }
 
 function shoot() {
@@ -79,12 +129,9 @@ function shoot() {
 		weapon.fire();
 		shootSound.play();
 	}
-
-	console.log(weapon);
-	console.log(targets);
 }
 
-function hit(weapon, target) {
-	console.log('I M THE STRONGEST MOTHER FUCKER!!!');
+function hit(bullets, target) {
+	console.log('I M THE STRONGEST MOTHER FUCKER IN THE WORD BITCH!!!');
 	target.kill();
 }
