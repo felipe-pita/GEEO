@@ -26,7 +26,11 @@ function preload() {
 	 */
 
 	// Audio
-	game.load.audio('weapon__shoot', 'sounds/weapon__shoot.wav');
+	game.load.audio('weapon__shoot', ['sounds/weapon__shoot.mp3', 'sounds/weapon__shoot.ogg']);
+	game.load.audio('weapon__shoot--slow', ['sounds/weapon__shoot--slow.mp3', 'sounds/weapon__shoot--slow.ogg']);
+	
+	game.load.audio('target__hit', ['sounds/target__hit.mp3', 'sounds/target__hit.ogg']);
+	game.load.audio('bullet__kill', ['sounds/bullet__kill.mp3', 'sounds/bullet__kill.ogg']);
 }
 
 // Elements
@@ -75,6 +79,7 @@ function create() {
 
 	// peww
 	shootSound = game.add.audio('weapon__shoot');
+	hitSound = game.add.audio('target__hit');
 
 
 	/*
@@ -133,5 +138,7 @@ function shoot() {
 
 function hit(bullets, target) {
 	console.log('I M THE STRONGEST MOTHER FUCKER IN THE WORD BITCH!!!');
+	hitSound.play();
 	target.kill();
+
 }
