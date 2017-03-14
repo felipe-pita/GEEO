@@ -51,6 +51,9 @@ function create() {
 	// Sistema de física
 	game.physics.startSystem(Phaser.Physics.ARCADE);
 
+	// angulação inicial
+	game.input.x = game.world.wdth / 2;
+
 
 	/*
 	 * Weapon
@@ -66,9 +69,6 @@ function create() {
 
 	// velocidade
 	weapon.bulletSpeed = 600;
-
-	// angulação inicial
-	game.input.x = game.world.wdth / 2;
 
 
 	// hitarea
@@ -92,7 +92,8 @@ function create() {
 	// ponto de rotação
 	panel.anchor.set(0.5);
 
-	panel.rotationOffset = -90;
+	// posição incial
+	panel.angle = -90;
 
 	// Arma deve seguir a angulação do painel
 	weapon.trackSprite(panel, 0, 0, true);	
@@ -105,10 +106,13 @@ function create() {
 	targets = game.add.group();
 
 	targets.enableBody = true;
-	var tween = game.add.tween(targets).to( { x: 200 }, 2000, Phaser.Easing.Linear.None, true, 0, 1000, true);
+
+	var tween = game.add.tween(targets).to( { x: 200 }, 2000, "Quart.easeInOut", true, 0, 1000, true);
+
+	shootRecoil = game.add.tween(panel.scale).to({ x: 1.1, y: 1.3}, 100, Phaser.Easing.Back.Out, false, 0, 0, true);
 
 	for (var i = 0; i < 4; i++) {
-		var target = targets.create(i * 50	, 10, 'target__square');	
+		var target = targets.create(i * 60	, 50, 'target__square');	
 	}
 }
 
@@ -131,13 +135,13 @@ function render() {
 
 function shoot() {
 	if (hitarea.contains(game.input.x, game.input.y)) {
+		shootRecoil.start();
 		weapon.fire();
 		shootSound.play();
 	}
 }
 
 function hit(bullets, target) {
-	console.log('I M THE STRONGEST MOTHER FUCKER IN THE WORD BITCH!!!');
 	hitSound.play();
 	target.kill();
 
