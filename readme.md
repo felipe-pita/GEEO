@@ -1,3 +1,3 @@
 # GEEO
 
-[play]('https://felipedefarias.github.io/geeo/')
+[play](https://felipedefarias.github.io/geeo/)
