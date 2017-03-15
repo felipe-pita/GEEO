@@ -47,6 +47,13 @@ gulp.task('webserver', function() {
 	}));
 });
  
+gulp.task('deploy', function() {
+	var ghPages = require('gulp-gh-pages');
+	
+	return gulp.src('./dist/**/*')
+	.pipe(ghPages());
+});
+ 
 gulp.task('default', ['sass', 'js', 'images', 'html', 'sounds', 'webserver'], function () {
   gulp.watch(['./assets/styles/**/*.sass'], ['sass']);
   gulp.watch(['./assets/scripts/**/*.js'], ['js']);
