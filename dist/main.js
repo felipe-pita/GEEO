@@ -26,7 +26,11 @@ function preload() {
 	 */
 
 	// Audio
-	game.load.audio('weapon__shoot', 'sounds/weapon__shoot.wav');
+	game.load.audio('weapon__shoot', ['sounds/weapon__shoot.mp3', 'sounds/weapon__shoot.ogg']);
+	game.load.audio('weapon__shoot--slow', ['sounds/weapon__shoot--slow.mp3', 'sounds/weapon__shoot--slow.ogg']);
+	
+	game.load.audio('target__hit', ['sounds/target__hit.mp3', 'sounds/target__hit.ogg']);
+	game.load.audio('bullet__kill', ['sounds/bullet__kill.mp3', 'sounds/bullet__kill.ogg']);
 }
 
 // Elements
@@ -47,6 +51,9 @@ function create() {
 	// Sistema de física
 	game.physics.startSystem(Phaser.Physics.ARCADE);
 
+	// angulação inicial
+	game.input.x = game.world.wdth / 2;
+
 
 	/*
 	 * Weapon
@@ -63,9 +70,6 @@ function create() {
 	// velocidade
 	weapon.bulletSpeed = 600;
 
-	// angulação inicial
-	game.input.x = game.world.wdth / 2;
-
 
 	// hitarea
 	hitarea = new Phaser.Rectangle(0, 0, game.width, game.height - 90);
@@ -75,6 +79,7 @@ function create() {
 
 	// peww
 	shootSound = game.add.audio('weapon__shoot');
+	hitSound = game.add.audio('target__hit');
 
 
 	/*
@@ -87,7 +92,8 @@ function create() {
 	// ponto de rotação
 	panel.anchor.set(0.5);
 
-	panel.rotationOffset = -90;
+	// posição incial
+	panel.angle = -90;
 
 	// Arma deve seguir a angulação do painel
 	weapon.trackSprite(panel, 0, 0, true);	
@@ -100,10 +106,13 @@ function create() {
 	targets = game.add.group();
 
 	targets.enableBody = true;
-	var tween = game.add.tween(targets).to( { x: 200 }, 2000, Phaser.Easing.Linear.None, true, 0, 1000, true);
+
+	var tween = game.add.tween(targets).to( { x: 200 }, 2000, "Quart.easeInOut", true, 0, 1000, true);
+
+	shootRecoil = game.add.tween(panel.scale).to({ x: 1.1, y: 1.3}, 100, Phaser.Easing.Back.Out, false, 0, 0, true);
 
 	for (var i = 0; i < 4; i++) {
-		var target = targets.create(i * 50	, 10, 'target__square');	
+		var target = targets.create(i * 60	, 50, 'target__square');	
 	}
 }
 
@@ -126,12 +135,14 @@ function render() {
 
 function shoot() {
 	if (hitarea.contains(game.input.x, game.input.y)) {
+		shootRecoil.start();
 		weapon.fire();
 		shootSound.play();
 	}
 }
 
 function hit(bullets, target) {
-	console.log('I M THE STRONGEST MOTHER FUCKER IN THE WORD BITCH!!!');
+	hitSound.play();
 	target.kill();
+
 }

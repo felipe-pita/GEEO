@@ -35,6 +35,13 @@ gulp.task('html', function () {
 	return gulp.src(['./*.html'])
 	.pipe(gulp.dest(dist));
 });
+
+gulp.task('deploy', function () {
+	var ghPages = require('gulp-gh-pages');
+
+	return gulp.src('./dist/**/*')
+    .pipe(ghPages());
+});
  
 gulp.task('webserver', function() {
 	var webserver = require('gulp-webserver');
