@@ -12,7 +12,7 @@ function preload() {
 	 */
 
 	// Gun
-	game.load.image('panel', 'images/bullet.square.svg');
+	game.load.image('panel', 'images/weapon.panel.svg');
 	
 	// Bullets
 	game.load.image('bullet', 'images/bullet.square.svg');
@@ -79,6 +79,8 @@ function create() {
 
 	// peww
 	shootSound = game.add.audio('weapon__shoot');
+	shootSound.volume = 0.4;
+
 	hitSound = game.add.audio('target__hit');
 
 
@@ -135,9 +137,15 @@ function render() {
 
 function shoot() {
 	if (hitarea.contains(game.input.x, game.input.y)) {
-		shootRecoil.start();
+
+		// atira
 		weapon.fire();
+
+		// faz pewwww
 		shootSound.play();
+
+		// Anima o tiro
+		shootRecoil.start();
 	}
 }
 
