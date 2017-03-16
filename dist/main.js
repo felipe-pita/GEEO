@@ -55,6 +55,21 @@ function create() {
 	game.input.x = game.world.wdth / 2;
 
 
+
+	/*
+	 * Panel
+	 */
+
+	// sprite
+	panel = this.add.sprite(game.width / 2, game.height + 125, 'panel');
+	
+	// ponto de rotação
+	panel.anchor.set((panel.height / 2) / panel.width, 0.5);
+
+	// posição incial
+	panel.angle = -90;
+
+
 	/*
 	 * Weapon
 	 */
@@ -70,6 +85,9 @@ function create() {
 	// velocidade
 	weapon.bulletSpeed = 600;
 
+	// Arma deve seguir a angulação do painel
+	weapon.trackSprite(panel, 200, 0, true);	
+
 
 	// hitarea
 	hitarea = new Phaser.Rectangle(0, 0, game.width, game.height - 90);
@@ -84,21 +102,6 @@ function create() {
 	hitSound = game.add.audio('target__hit');
 
 
-	/*
-	 * Panel
-	 */
-
-	// sprite
-	panel = this.add.sprite(game.width / 2, game.height - 80, 'panel');
-	
-	// ponto de rotação
-	panel.anchor.set(0.5);
-
-	// posição incial
-	panel.angle = -90;
-
-	// Arma deve seguir a angulação do painel
-	weapon.trackSprite(panel, 0, 0, true);	
 
 	/*
 	 * Targets
@@ -128,8 +131,8 @@ function update() {
 }
 
 function render() {
-	// weapon.debug();
-	//game.debug.bodyInfo(shooter, 32, 32);
+	weapon.debug();
+	game.debug.bodyInfo(panel, 32, 32);
 
     game.debug.body(weapon);
     game.debug.body(targets);
