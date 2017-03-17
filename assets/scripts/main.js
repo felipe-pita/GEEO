@@ -13,9 +13,9 @@ function preload() {
 
 	// Gun
 	game.load.image('panel', 'images/weapon.panel.svg');
-	
+
 	// Bullets
-	game.load.image('bullet', 'images/bullet.square.svg');
+	game.load.spritesheet('bullets', 'images/bullets.svg', 38, 38);
 
 	// Target
 	game.load.image('target__square', 'images/target.square.svg');
@@ -34,10 +34,17 @@ function preload() {
 }
 
 // Elements
-var weapon, panel, cursors, hitarea, targets;
+var weapon, 
+    panel, 
+    cursors, 
+    hitarea, 
+    targets,
+    shootSound,
+    shootRecoil;
 
 // functions
-var shoot, hit;
+var shoot,
+    hit;
 
 function create() {
 
@@ -45,48 +52,31 @@ function create() {
 	 * init
 	 */
 
-	// background
 	game.stage.backgroundColor = '#313131';
-
-	// Sistema de física
 	game.physics.startSystem(Phaser.Physics.ARCADE);
-
 	// angulação inicial
 	game.input.x = game.world.wdth / 2;
-
-
 
 	/*
 	 * Panel
 	 */
 
-	// sprite
-	panel = this.add.sprite(game.width / 2, game.height + 125, 'panel');
-	
-	// ponto de rotação
+	panel = this.add.sprite(game.width / 2, game.height + 125, 'panel');	
 	panel.anchor.set((panel.height / 2) / panel.width, 0.5);
 
-	// posição incial
-	panel.angle = -90;
-
+	// animação do tiro
+	shootRecoil = game.add.tween(panel.scale).to({ x: 1.1, y: 1.1}, 150, Phaser.Easing.Back.Out, false, 0, 0, true);
 
 	/*
 	 * Weapon
 	 */
 
-	// Adiciona as balas
-	weapon = game.add.weapon(10, 'bullet');
-
-	// weapon.enableBody = true;
-
-	// morrer ao sair da tela
+	weapon = game.add.weapon(10, 'bullets');
 	weapon.bulletKillType = Phaser.Weapon.KILL_WORLD_BOUNDS;
-
-	// velocidade
 	weapon.bulletSpeed = 600;
+	weapon.trackSprite(panel, 200, 0, true);
 
-	// Arma deve seguir a angulação do painel
-	weapon.trackSprite(panel, 200, 0, true);	
+	weapon.setBulletFrames(0, 4, true);
 
 
 	// hitarea
@@ -99,9 +89,8 @@ function create() {
 	shootSound = game.add.audio('weapon__shoot');
 	shootSound.volume = 0.4;
 
+	// hit
 	hitSound = game.add.audio('target__hit');
-
-
 
 	/*
 	 * Targets
@@ -113,8 +102,6 @@ function create() {
 	targets.enableBody = true;
 
 	var tween = game.add.tween(targets).to( { x: 200 }, 2000, "Quart.easeInOut", true, 0, 1000, true);
-
-	shootRecoil = game.add.tween(panel.scale).to({ x: 1.1, y: 1.3}, 100, Phaser.Easing.Back.Out, false, 0, 0, true);
 
 	for (var i = 0; i < 4; i++) {
 		var target = targets.create(i * 60	, 50, 'target__square');	
@@ -128,14 +115,14 @@ function update() {
 	}
 
 	game.physics.arcade.overlap(weapon.bullets, targets, hit, null, this);
+
+
+	// weapon.bulletFrameIndex = 3;
 }
 
 function render() {
-	weapon.debug();
-	game.debug.bodyInfo(panel, 32, 32);
-
-    game.debug.body(weapon);
-    game.debug.body(targets);
+	// weapon.debug();
+	// game.debug.spriteInfo(sprite, 32, 32);
 }
 
 function shoot() {
