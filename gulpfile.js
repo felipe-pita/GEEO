@@ -14,7 +14,7 @@ gulp.task('sass', function () {
 
 gulp.task('js', function () {
 	
-	return gulp.src(['./assets/scripts/**/*.js'])
+	return gulp.src(['./assets/scripts/**/*'])
 	.pipe(gulp.dest(dist));
 });
 
@@ -62,8 +62,8 @@ gulp.task('deploy', function() {
 });
  
 gulp.task('default', ['sass', 'js', 'images', 'html', 'sounds', 'webserver'], function () {
-  gulp.watch(['./assets/styles/**/*.sass'], ['sass']);
-  gulp.watch(['./assets/scripts/**/*.js'], ['js']);
+  gulp.watch(['./assets/styles/**/*'], ['sass']);
+  gulp.watch(['./assets/scripts/**/*'], ['js']);
   gulp.watch(['./assets/images/**/*'], ['images']);
   gulp.watch(['./*.html'], ['html']);
 });

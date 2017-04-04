@@ -1,0 +1,26 @@
+{
+	"stages": [ 
+		{
+			"line": 0,
+			"easing": null,
+			"speed": 500,
+			"items": [
+				{ "position": 0, "type": 1 },
+				{ "position": 3, "type": 1 },
+				{ "position": 4, "type": 3 },
+				{ "position": 5, "type": 4 }
+			]
+		},
+		{
+			"line": 0,
+			"easing": null,
+			"speed": 500,
+			"items": [
+				{ "position": 0, "type": 1 },
+				{ "position": 3, "type": 1 },
+				{ "position": 4, "type": 3 },
+				{ "position": 5, "type": 4 }
+			]
+		}
+	]
+}
