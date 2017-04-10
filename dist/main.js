@@ -1,15 +1,33 @@
-/*
- _____  _____  _____  _____ 
-|   __||   __||   __||     |
-|  |  ||   __||   __||  |  |
-|_____||_____||_____||_____|
+/*  _____  _____  _____  _____  */
+/* |   __||   __||   __||     | */
+/* |  |  ||   __||   __||  |  | */
+/* |_____||_____||_____||_____| */
+/*                              */
 
-*/
-
+/** vamo que vamo */
 var game = new Phaser.Game(320, 568, Phaser.CANVAS, 'phaser-example', { preload: preload, create: create, update: update, render: render });
 
-function preload() {
 
+
+/** elementos */
+var weapon, 
+	panel, 
+	cursors, 
+	hitarea, 
+	targets,
+	shootSound,
+	shootRecoil;
+
+/** funções */
+var shoot,
+	hit,
+	generateTargets;
+
+
+
+/** carrega os assets */
+function preload() {
+	console.log('preload');
 	var assets = {
 		spritesheet: {
 			bullets: ['images/bullets.svg', 38, 38],
@@ -34,116 +52,99 @@ function preload() {
 	});
 }
 
-// Elements
-var weapon, 
-	panel, 
-	cursors, 
-	hitarea, 
-	targets,
-	shootSound,
-	shootRecoil;
 
-// functions
-var shoot,
-	hit,
-	generateTargets;
 
+/** Cria o jogo */
 function create() {
+	console.log('create');
 
-	/*
-	 * init
-	 */
-
+	/** init */
 	game.stage.backgroundColor = '#313131';
 	game.physics.startSystem(Phaser.Physics.ARCADE);
-	// angulação inicial
-	game.input.x = game.world.wdth / 2;
+	game.input.x = game.world.wdth / 2; // angulação inicial
 
-	/*
-	 * Panel
-	 */
+	/** hitarea */
+	hitarea = new Phaser.Rectangle(0, 0, game.width, game.height - 90);
 
+	/** Panel */
 	panel = this.add.sprite(game.width / 2, game.height + 125, 'panel');	
 	panel.anchor.set((panel.height / 2) / panel.width, 0.5);
+	panelShootRecoil = game.add.tween(panel.scale).to({ x: 1.1, y: 1.1}, 150, Phaser.Easing.Back.Out, false, 0, 0, true); // animação do tiro
 
-	// animação do tiro
-	panelShootRecoil = game.add.tween(panel.scale).to({ x: 1.1, y: 1.1}, 150, Phaser.Easing.Back.Out, false, 0, 0, true);
-
-	/*
-	 * Weapon
-	 */
-
+	/** Weapon */
 	weapon = game.add.weapon(10, 'bullets');
 	weapon.bulletKillType = Phaser.Weapon.KILL_WORLD_BOUNDS;
 	weapon.bulletSpeed = 600;
 	weapon.trackSprite(panel, 200, 0, true);
-
 	weapon.setBulletFrames(0, 4, true);
+	game.input.onDown.add(shoot); // atirar
+	shootSound = game.add.audio('weaponShoot'); // som do tiro
+	shootSound.volume = 0.4; // volume
+	hitSound = game.add.audio('targetHit'); // som de acerto
 
-
-	// hitarea
-	hitarea = new Phaser.Rectangle(0, 0, game.width, game.height - 90);
-
-	// atirar
-	game.input.onDown.add(shoot);
-
-	// peww
-	shootSound = game.add.audio('weaponShoot');
-	shootSound.volume = 0.4;
-
-	// hit
-	hitSound = game.add.audio('targetHit');
-
-	/*
-	 * Targets
-	 */
-
-	// Grupo
+	/** Targets */
 	targets = game.add.group();
 	targets.enableBody = true;
 
-	targetsLoad = loadJSON('stages.json');
+	// pega os stages no json
+	loadJSON("stages.json", function(response) {
+		var stages = JSON.parse(response);
+		generateTargets(stages.stages[0]);
+	});
 
-	console.log(targetsLoad);
-
-	// generateTargets();
-
-	targets.x = game.world.centerX - (targets.width * 0.5);
+	// targets.x = game.world.centerX - (targets.width * 0.5);
 }
 
+var once = 1;
+/** loop do jogo */
 function update() {
-	// Rotaciona a arma se estiver dentro da hitarea
-	if ( hitarea.contains(game.input.x, game.input.y) ) {
+
+	/** Rotaciona a arma se estiver dentro da hitarea */
+	if ( hitarea.contains(game.input.x, game.input.y) )
 		panel.rotation = game.physics.arcade.angleToPointer(panel);
-	}
 
 	game.physics.arcade.overlap(weapon.bullets, targets, hit, null, this);
-
-
 	// weapon.bulletFrameIndex = 3;
 }
 
+
+
+/** render do jogo */
 function render() {
 	// weapon.debug();
 	// game.debug.spriteInfo('targets', 32, 32);
 }
 
-function generateTargets(line) {
-	speed = (speed != null) ? speed : 500;
-	easing = (easing != null) ? easing : 'Quart.easeInOut';
 
-	var line = game.add.group();
 
-	for (var i = 0; i < itens.length; i++) {
-		console.log(itens[i]);
-		var item = line.create(itens[i].pos * 60, (80 * line) + 30, 'targets', itens[i].type);
+/** Cria os alvos na tela */
+function generateTargets(stage) {
+	console.log('generate');
+	var speed, easing;
+
+	for (var a = 0; a < stage.lines.length; a++) {
+		var line = stage.lines[a];
+
+		speed = (line.speed != null) ? line.speed : 500;
+		easing = (line.easing != null) ? line.easing : 'Quart.easeInOut';
+
+		var lineGroup = game.add.group();
+
+		for (var b = 0; b < line.items.length; b++) {
+			var item = line.items[b];
+
+			var itemGroup = lineGroup.create(item.position * 10, (80 * a) + 30, 'targets', item.type);
+		}
+
+		// targetsAnimation = game.add.tween(lineGroup).to({ x: 200 }, speed, easing, true, 0, -1, true);
+
+		targets.add(lineGroup);
 	}
-
-	targetsAnimation = game.add.tween(line).to({ x: 200 }, speed, easing, true, 0, -1, true);
-
-	targets.add(line);
 }
 
+
+
+/** atira */
 function shoot() {
 	if (hitarea.contains(game.input.x, game.input.y)) {
 
@@ -158,35 +159,26 @@ function shoot() {
 	}
 }
 
+
+
+/** acerta o alvo */
 function hit(bullets, target) {
 	hitSound.play();
 	target.kill();
 }
 
 
-function loadJSON(file) {
-	var xobj = new XMLHttpRequest();
-		xobj.overrideMimeType("application/json");
 
-	xobj.open('GET', file, true); // Replace 'my_data' with the path to your file
+/** carrega arquivos json async */
+function loadJSON(file, callback) {   
+	var xobj = new XMLHttpRequest();
+	xobj.overrideMimeType("application/json");
+	xobj.open('GET', file, true);
 	xobj.onreadystatechange = function () {
 		if (xobj.readyState == 4 && xobj.status == "200") {
-			// Required use of an anonymous callback as .open will NOT return a value but simply returns undefined in asynchronous mode
-			// return JSON.parse(xobj.responseText);
-			return 'aeeeeooo';
-
-			console.log('teste');
+			callback(xobj.responseText);
 		}
 	};
-	xobj.send(null);
-
-	console.log(xobj.responseText);
+	xobj.send(null);  
 }
 
-loadJSON('stages.json');
-
-
-
-// parei tentando ler o json, ja tinha dado certo, olhando aqui
-// https://codepen.io/KryptoniteDove/post/load-json-file-locally-using-pure-javascript
-// mas eu quis mudar tudo pq né

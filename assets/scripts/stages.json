@@ -1,14 +1,37 @@
 {
 	"stages": [ 
 		{
-			"line": 0,
-			"easing": null,
-			"speed": 500,
-			"items": [
-				{ "position": 0, "type": 1 },
-				{ "position": 3, "type": 1 },
-				{ "position": 4, "type": 3 },
-				{ "position": 5, "type": 4 }
+			"lines": [
+				{
+					"easing": null,
+					"speed": 500,
+					"items": [
+						{ "position": 0, "type": 1 },
+						{ "position": 3, "type": 1 },
+						{ "position": 4, "type": 3 },
+						{ "position": 5, "type": 4 }
+					]
+				},
+				{
+					"easing": null,
+					"speed": 1000,
+					"items": [
+						{ "position": 0, "type": 2 },
+						{ "position": 2, "type": 1 },
+						{ "position": 3, "type": 1 },
+						{ "position": 4, "type": 4 }
+					]
+				},
+				{
+					"easing": null,
+					"speed": 300,
+					"items": [
+						{ "position": 1, "type": 1 },
+						{ "position": 2, "type": 2 },
+						{ "position": 3, "type": 3 },
+						{ "position": 4, "type": 4 }
+					]
+				}
 			]
 		},
 		{
