@@ -14,6 +14,7 @@ var weapon,
 	panel, 
 	cursors, 
 	hitarea, 
+	stages,
 	targets,
 	shootSound,
 	shootRecoil;
@@ -50,13 +51,19 @@ function preload() {
 			game.load[type].apply(game.load, [id].concat(assets[type][id]));
 		});
 	});
+
+
+	// carrega o json
+	loadJSON("stages.json", function(response) {
+		stages = JSON.parse(response);
+	});
 }
 
 
 
 /** Cria o jogo */
 function create() {
-	console.log('create');
+	
 
 	/** init */
 	game.stage.backgroundColor = '#313131';
@@ -85,12 +92,7 @@ function create() {
 	/** Targets */
 	targets = game.add.group();
 	targets.enableBody = true;
-
-	// pega os stages no json
-	loadJSON("stages.json", function(response) {
-		var stages = JSON.parse(response);
-		generateTargets(stages.stages[0]);
-	});
+	generateTargets(stages.stages[0]);
 
 	// targets.x = game.world.centerX - (targets.width * 0.5);
 }
@@ -119,26 +121,23 @@ function render() {
 
 /** Cria os alvos na tela */
 function generateTargets(stage) {
-	console.log('generate');
-	var speed, easing;
 
 	for (var a = 0; a < stage.lines.length; a++) {
-		var line = stage.lines[a];
+		var generateLine = stage.lines[a],
+		    generateLineSpeed = (generateLine.speed != null) ? generateLine.speed : 500,
+		    generateLineEasing = (generateLine.easing != null) ? generateLine.easing : Phaser.Easing.Cubic.InOut;
 
-		speed = (line.speed != null) ? line.speed : 500;
-		easing = (line.easing != null) ? line.easing : 'Quart.easeInOut';
+		for (var b = 0; b < generateLine.items.length; b++) {
+			var generateItem = generateLine.items[b],
+			    generateItemX = (generateItem.position * 60) - (game.width / 2),
+			    generateItemY = (80 * a) + 30;
 
-		var lineGroup = game.add.group();
+			    console.log(game.width / 2);
 
-		for (var b = 0; b < line.items.length; b++) {
-			var item = line.items[b];
+			var generateItemSprite = targets.create(generateItemX, generateItemY, 'targets', generateItem.type);
 
-			var itemGroup = lineGroup.create(item.position * 10, (80 * a) + 30, 'targets', item.type);
+			targetsAnimation = game.add.tween(generateItemSprite).to({ x: generateItemX + (game.width) }, generateLineSpeed, generateLineEasing, true, 0, -1, true);
 		}
-
-		// targetsAnimation = game.add.tween(lineGroup).to({ x: 200 }, speed, easing, true, 0, -1, true);
-
-		targets.add(lineGroup);
 	}
 }
 
@@ -173,7 +172,7 @@ function hit(bullets, target) {
 function loadJSON(file, callback) {   
 	var xobj = new XMLHttpRequest();
 	xobj.overrideMimeType("application/json");
-	xobj.open('GET', file, true);
+	xobj.open('GET', file, false);
 	xobj.onreadystatechange = function () {
 		if (xobj.readyState == 4 && xobj.status == "200") {
 			callback(xobj.responseText);
