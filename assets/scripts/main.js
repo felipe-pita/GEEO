@@ -32,7 +32,7 @@ function preload() {
 		},
 		image: {
 			panel: ['images/panel.svg'],
-			bulletsIndicator: ['images/bullets.indicator.svg'],
+			bulletsIndicator: ['images/bullets-indicator.svg'],
 		},
 		audio: {
 			weaponShoot: ['sounds/weapon__shoot.mp3', 'sounds/weapon__shoot.ogg'],
@@ -79,7 +79,7 @@ function create() {
 	weapon = game.add.weapon(10, 'bullets');
 	weapon.bulletKillType = Phaser.Weapon.KILL_WORLD_BOUNDS;
 	weapon.bulletSpeed = 600;
-	weapon.trackSprite(panel, 200, 0, true);
+	weapon.trackSprite(panel, 204, 0, true);
 	weapon.setBulletFrames(0, 4, true);
 	weapon.currentBulletFrame = 0;
 	weapon.bulletFrameIndex = weapon.currentBulletFrame;
@@ -88,8 +88,9 @@ function create() {
 	weapon.hitSound = game.add.audio('targetHit');
 
 	/** bullets indicator */
-	bulletsIndicator = game.add.sprite(game.width / 2, game.height - 233, 'bulletsIndicator');
-	//bulletsIndicator.anchor.set(bulletsIndicator.width / 2, 235);
+	bulletsIndicator = game.add.sprite(game.width / 2, game.height + 125, 'bulletsIndicator');
+	bulletsIndicator.pivot.set(bulletsIndicator.width / 2, 235);
+
 
 	/** Targets */
 	targets = game.add.group();
@@ -116,7 +117,7 @@ function update() {
 	if ( hitarea.contains(game.input.x, game.input.y) )
 		panel.rotation = game.physics.arcade.angleToPointer(panel);
 
-	game.physics.arcade.overlap(weapon.bullets, targets, hit, null, this);
+
 
 	if ( control.Q.isDown )
 		weapon.currentBulletFrame = 0;
@@ -132,6 +133,14 @@ function update() {
 
 	if ( control.T.isDown )
 		weapon.currentBulletFrame = 4;
+
+
+	bulletsIndicator.angle = (( panel.angle + 90 ) + 30 ) - 15 * weapon.currentBulletFrame;
+
+
+	game.physics.arcade.overlap(weapon.bullets, targets, hit, null, this);
+
+
 }
 
 /** render do jogo */
@@ -148,6 +157,13 @@ function shoot() {
 		weapon.fire();
 		weapon.shootSound.play();
 		panel.recoil.start();
+
+
+		console.log(panel.angle);
+
+
+		bulletsIndicator.angle = (( panel.angle + 90 ) + 30 ) - 15 * weapon.currentBulletFrame;
+		console.log(bulletsIndicator.angle);
 	}
 }
 
