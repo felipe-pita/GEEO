@@ -72,13 +72,16 @@ function create() {
 	weapon = game.add.weapon(10, 'bullets');
 	weapon.bulletKillType = Phaser.Weapon.KILL_WORLD_BOUNDS;
 	weapon.bulletSpeed = 600;
-	weapon.trackSprite(panel, 204, 0, true);
+	weapon.trackSprite(panel, 206, 0, true);
 	weapon.setBulletFrames(0, 4, true);
-	weapon.currentBulletFrame = 0;
-	weapon.bulletFrameIndex = weapon.currentBulletFrame;
+	weapon.currentBulletFrame = 2;
+	weapon.bulletFrameIndex = 1;
 	weapon.shootSound = game.add.audio('weaponShoot');
 	weapon.shootSound.volume = 0.4;
 	weapon.hitSound = game.add.audio('targetHit');
+	game.input.onDown.add(shoot);
+
+	console.log(weapon);
 
 	/** bullets indicator */
 	bulletsIndicator = game.add.sprite(game.width / 2, game.height + 125, 'bulletsIndicator');
@@ -105,53 +108,48 @@ function create() {
 var once = 1;
 function update() {
 
+	/** Controles */
+	if (control.Q.isDown) weapon.currentBulletFrame = 0;else if (control.W.isDown) weapon.currentBulletFrame = 1;else if (control.E.isDown) weapon.currentBulletFrame = 2;else if (control.R.isDown) weapon.currentBulletFrame = 3;else if (control.T.isDown) weapon.currentBulletFrame = 4;
+
+	weapon.bulletFrameIndex = weapon.currentBulletFrame;
+
 	/** Rotaciona a arma se estiver dentro da hitarea */
-	if (hitarea.contains(game.input.x, game.input.y)) panel.rotation = game.physics.arcade.angleToPointer(panel);
+	if (hitarea.contains(game.input.x, game.input.y)) aim();
 
-	if (control.Q.isDown) weapon.currentBulletFrame = 0;
-
-	if (control.W.isDown) weapon.currentBulletFrame = 1;
-
-	if (control.E.isDown) weapon.currentBulletFrame = 2;
-
-	if (control.R.isDown) weapon.currentBulletFrame = 3;
-
-	if (control.T.isDown) weapon.currentBulletFrame = 4;
-
-	bulletsIndicator.angle = panel.angle + 90 + 30 - 15 * weapon.currentBulletFrame;
-
+	/** Se a bala acerta o alvo */
 	game.physics.arcade.overlap(weapon.bullets, targets, hit, null, this);
 }
 
 /** render do jogo */
-function render() {
-	//weapon.debug();
-	game.input.onDown.add(shoot);
-	game.debug.spriteInfo(bulletsIndicator, 32, 32);
-}
+function render() {}
+// game.debug.text( "frameindex: " + weapon.bulletFrameIndex, 100, 380 );
+
 
 /** atira */
 function shoot() {
+
 	if (hitarea.contains(game.input.x, game.input.y)) {
-		weapon.bulletFrameIndex = weapon.currentBulletFrame;
 		weapon.fire();
 		weapon.shootSound.play();
 		panel.recoil.start();
-
-		console.log(panel.angle);
-
-		bulletsIndicator.angle = panel.angle + 90 + 30 - 15 * weapon.currentBulletFrame;
-		console.log(bulletsIndicator.angle);
 	}
+}
+
+/** mira */
+function aim() {
+	panel.rotation = game.physics.arcade.angleToPointer(panel);
+	bulletsIndicator.angle = panel.angle + 90 + 30 - 15 * weapon.currentBulletFrame;
 }
 
 /** acerta o alvo */
 function hit(bullet, target) {
-	weapon.hitSound.play();
-	target.kill();
-
-	console.log(bullet.parent);
-	console.log(target.targetType);
+	if (bullet.data.bulletManager.bulletFrameIndex == target.targetType) {
+		weapon.hitSound.play();
+		target.kill();
+	} else {
+		bullet.kill();
+		console.log('errou');
+	}
 }
 
 /** Cria os alvos na tela */
