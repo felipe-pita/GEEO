@@ -145,7 +145,9 @@ function aim() {
 function hit(bullet, target) {
 	if (bullet.data.bulletManager.bulletFrameIndex == target.targetType) {
 		weapon.hitSound.play();
-		target.kill();
+		console.log(target);
+		target.die.start();
+		// target.kill();
 	} else {
 		bullet.kill();
 		console.log('errou');
@@ -182,6 +184,10 @@ function createTargets(stage) {
 				targets.animation = game.add.tween(createdTarget).to({
 					x: item.x + line.width * 2
 				}, line.speed, line.easing, true, 0, -1, true);
+
+				createdTarget.die = game.add.tween(createdTarget).to({
+					alpha: 0
+				}, 500, 'Linear', false);
 			}
 		} catch (err) {
 			_didIteratorError = true;
