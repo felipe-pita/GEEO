@@ -25,13 +25,13 @@
 					]
 				},
 				{
-					"easing": null,
-					"speed": 3000,
+					"easing": "Linear",
+					"speed": 10000,
 					"items": [
-						{ "position": 0, "type": 1 },
-						{ "position": 1, "type": 2 },
-						{ "position": 2, "type": 3 },
-						{ "position": 3, "type": 4 },
+						{ "position": 0, "type": 0 },
+						{ "position": 1, "type": 1 },
+						{ "position": 2, "type": 2 },
+						{ "position": 3, "type": 3 },
 						{ "position": 4, "type": 4 }
 					]
 				}

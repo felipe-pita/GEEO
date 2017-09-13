@@ -69,8 +69,9 @@ function create() {
 	panel.angle = -90;
 
 	/** Weapon */
-	weapon = game.add.weapon(10, 'bullets');
-	weapon.bulletKillType = Phaser.Weapon.KILL_WORLD_BOUNDS;
+	weapon = game.add.weapon(20, 'bullets');
+	weapon.bulletKillType = Phaser.Weapon.KILL_LIFESPAN;
+	weapon.bulletLifespan = 2000;
 	weapon.bulletSpeed = 600;
 	weapon.trackSprite(panel, 206, 0, true);
 	weapon.setBulletFrames(0, 4, true);
@@ -121,12 +122,14 @@ function update() {
 }
 
 /** render do jogo */
-function render() {}
-// game.debug.text( "frameindex: " + weapon.bulletFrameIndex, 100, 380 );
-
+function render() {
+	// game.debug.text( "frameindex: " + weapon.bulletFrameIndex, 100, 380 );
+	weapon.debug();
+}
 
 /** atira */
 function shoot() {
+	console.log(weapon);
 
 	if (hitarea.contains(game.input.x, game.input.y)) {
 		weapon.fire();
@@ -145,12 +148,36 @@ function aim() {
 function hit(bullet, target) {
 	if (bullet.data.bulletManager.bulletFrameIndex == target.targetType) {
 		weapon.hitSound.play();
+		target.body.enable = false;
+		bullet.body.enable = false;
+
 		console.log(target);
-		target.die.start();
-		// target.kill();
+
+		target.frame = 2;
+
+		bullet.dieAnimation = game.add.tween(bullet).to({
+			alpha: 0,
+			y: '-38'
+		}, 500, 'Linear', true);
+
+		bullet.dieAnimation.onComplete.add(function () {
+			bullet.kill();
+			bullet.alpha = 1;
+			bullet.body.enable = true;
+		});
 	} else {
-		bullet.kill();
-		console.log('errou');
+		bullet.body.enable = false;
+		bullet.dieAnimation = game.add.tween(bullet).to({
+			alpha: 0,
+			x: String(getRandomInt(3, 8) * Math.round(Math.random()) * 2 - 1),
+			y: '-38'
+		}, 500, 'Linear', true);
+
+		bullet.dieAnimation.onComplete.add(function () {
+			bullet.kill();
+			bullet.alpha = 1;
+			bullet.body.enable = true;
+		});
 	}
 }
 
@@ -184,10 +211,6 @@ function createTargets(stage) {
 				targets.animation = game.add.tween(createdTarget).to({
 					x: item.x + line.width * 2
 				}, line.speed, line.easing, true, 0, -1, true);
-
-				createdTarget.die = game.add.tween(createdTarget).to({
-					alpha: 0
-				}, 500, 'Linear', false);
 			}
 		} catch (err) {
 			_didIteratorError = true;
@@ -221,4 +244,9 @@ function loadJSON(file, callback) {
 		}
 	};
 	xobj.send(null);
+}
+
+/** Cria um valor random em um range */
+function getRandomInt(min, max) {
+	return Math.floor(Math.random() * (max - min + 1) + min);
 }
